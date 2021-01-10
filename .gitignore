@@ -1,0 +1,10 @@
+##### MacOS
+# General
+.DS_Store
+.AppleDouble
+.LSOverride
+
+target/
+.settings/
+.vscode/
+
