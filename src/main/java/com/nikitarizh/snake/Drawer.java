@@ -51,18 +51,18 @@ public class Drawer {
     }
 
     private void drawSnake() {
-        fillRect(Game.snake.head().getX(), Game.snake.head().getY(), TILE_SIZE, TILE_SIZE, SNAKE_HEAD_COLOR);
+        fillRoundRect(Game.snake.head().getX(), Game.snake.head().getY(), TILE_SIZE, TILE_SIZE, SNAKE_HEAD_COLOR);
         if (Game.snake.isDead()) {
             for (Tile tile : Game.snake.body()) {
                 synchronized(tile) {
-                    fillRect(tile.getX(), tile.getY(), TILE_SIZE, TILE_SIZE, SNAKE_DYING_BODY_COLOR);
+                    fillRoundRect(tile.getX(), tile.getY(), TILE_SIZE, TILE_SIZE, SNAKE_DYING_BODY_COLOR);
                 }
             }
         }
         else {
             for (Tile tile : Game.snake.body()) {
                 synchronized(tile) {
-                    fillRect(tile.getX(), tile.getY(), TILE_SIZE, TILE_SIZE, SNAKE_BODY_COLOR);
+                    fillRoundRect(tile.getX(), tile.getY(), TILE_SIZE, TILE_SIZE, SNAKE_BODY_COLOR);
                 }
             }
         }
@@ -70,12 +70,17 @@ public class Drawer {
 
     private void drawFood() {
         if (Game.food != null) {
-            fillRect(Game.food.getX(), Game.food.getY(), TILE_SIZE, TILE_SIZE, FOOD_COLOR);
+            fillRoundRect(Game.food.getX(), Game.food.getY(), TILE_SIZE, TILE_SIZE, FOOD_COLOR);
         }
     }
 
     private void fillRect(double x, double y, double w, double h, Color color) {
         context.setFill(color);
         context.fillRect(x * Game.WIDTH_MULT, y * Game.HEIGHT_MULT, w * Game.WIDTH_MULT, h * Game.HEIGHT_MULT);
+    }
+
+    private void fillRoundRect(double x, double y, double w, double h, Color color) {
+        context.setFill(color);
+        context.fillRoundRect(x * Game.WIDTH_MULT, y * Game.HEIGHT_MULT, w * Game.WIDTH_MULT, h * Game.HEIGHT_MULT, w * Game.WIDTH_MULT / 2,  h * Game.HEIGHT_MULT / 2);
     }
 }

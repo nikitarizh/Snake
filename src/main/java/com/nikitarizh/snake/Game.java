@@ -16,7 +16,7 @@ public class Game {
     public static Tile food;
     public static Drawer drawer;
     
-    public static final int DRAWING_FREQ = 15;
+    public static final int DRAWING_FREQ = 30;
     public static final int MOVING_FREQ = 15;
 
     public Game(GraphicsContext context) {
