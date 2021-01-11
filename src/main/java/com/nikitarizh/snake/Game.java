@@ -17,7 +17,7 @@ public class Game {
     public static Drawer drawer;
     
     public static final int DRAWING_FREQ = 30;
-    public static final int MOVING_FREQ = 10;
+    public static final int MOVING_FREQ = 30;
 
     public Game(GraphicsContext context) {
         init(context);
@@ -26,6 +26,10 @@ public class Game {
     }
 
     public void changeSnakeDirection(String keyCode) {
+        if (snake.isDead()) {
+            startNewGame();
+        }
+
         if (keyCode.equals("W") || keyCode.equals("Up")) {
             snake.setTopDirection();
         }
@@ -41,12 +45,14 @@ public class Game {
     }
 
     public static void foodAte() {
+        drawer.stopDrawingLoop();
         snake.stopMoving();
 
         food = null;
         generateFood();
 
         snake.startMoving();
+        drawer.startDrawingLoop();
     }
 
     private void init(GraphicsContext context) {
@@ -54,6 +60,15 @@ public class Game {
         generateFood();
 
         drawer = new Drawer(context);
+    }
+
+    private void startNewGame() {
+        drawer.stopDrawingLoop();
+        snake.stopMoving();
+
+        snake = new Snake();
+        snake.startMoving();
+        drawer.startDrawingLoop();
     }
 
     private static void generateFood() {

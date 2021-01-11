@@ -18,6 +18,8 @@ public class Snake {
 
     private Timer movingLoop;
 
+    private boolean isDead = false;
+
     public Snake() {
 
         generateHead();
@@ -35,21 +37,27 @@ public class Snake {
         return body;
     }
 
+    public boolean isDead() {
+        return this.isDead;
+    }
+
     public void startMoving() {
+        System.out.println("started moving");
         movingLoop = new Timer();
         movingLoop.schedule(new TimerTask(){
             @Override
             public void run() {
+                move();
+                
                 // lol
                 maybeDie();
                 maybeEat();
-
-                move();
             }
         }, 0, 1000 / Game.MOVING_FREQ);
     }
 
     public void stopMoving() {
+        System.out.println("stopped moving");
         movingLoop.cancel();
     }
 
@@ -126,11 +134,15 @@ public class Snake {
     }
 
     private void grow() {
-        body.add(new Tile(head.getX(), head.getY()));
+        synchronized(body) {
+            body.add(new Tile(head.getX(), head.getY()));
+        }
     }
 
     private void die() {
-        generateHead();
-        generateBody();
+        isDead = true;
+        stopMoving();
+        // generateHead();
+        // generateBody();
     }
 }
