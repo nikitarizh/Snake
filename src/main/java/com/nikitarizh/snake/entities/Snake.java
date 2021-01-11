@@ -42,13 +42,12 @@ public class Snake {
     }
 
     public void startMoving() {
-        System.out.println("started moving");
         movingLoop = new Timer();
         movingLoop.schedule(new TimerTask(){
             @Override
             public void run() {
                 move();
-                
+
                 // lol
                 maybeDie();
                 maybeEat();
@@ -57,7 +56,6 @@ public class Snake {
     }
 
     public void stopMoving() {
-        System.out.println("stopped moving");
         movingLoop.cancel();
     }
 
