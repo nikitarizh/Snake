@@ -189,8 +189,7 @@ public class Snake {
 
     private void die() {
         isDead = true;
-        // stopMoving();
-        getNewSnake();
+        stopMoving();
     }
 
     private void resurrect() {

@@ -72,12 +72,12 @@ public class Game {
 
     private static void startNewGame() {
         drawer.stopDrawingLoop();
-        // snake.stopMoving();
+        snake.stopMoving();
 
         synchronized (snake) {
             snake.getNewSnake();
-            // snake.startMoving();
         }
+        snake.startMoving();
         drawer.startDrawingLoop();
     }
 
