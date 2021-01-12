@@ -16,8 +16,8 @@ public class Game {
     public static volatile Tile food;
     public static Drawer drawer;
     
-    public static final int DRAWING_FREQ = 60;
-    public static final int MOVING_FREQ = 60;
+    public static final int DRAWING_FREQ = 15;
+    public static final int MOVING_FREQ = 15;
 
     public static final int DRAWING_PRIORITY = 0;
     public static final int MOVING_PRIORITY = 1;
