@@ -21,7 +21,7 @@ public class GUI extends Application {
         catch (Exception e) {
             System.out.println("Error loading main template");
             e.printStackTrace();
-            System.exit(0);
+            System.exit(1);
         }
 
         Scene scene = new Scene(root);

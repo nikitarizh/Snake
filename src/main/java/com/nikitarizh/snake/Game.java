@@ -12,12 +12,15 @@ public class Game {
     public static double WIDTH_MULT = 0;
     public static double HEIGHT_MULT = 0;
 
-    public static Snake snake;
-    public static Tile food;
+    public static volatile Snake snake;
+    public static volatile Tile food;
     public static Drawer drawer;
     
-    public static final int DRAWING_FREQ = 30;
-    public static final int MOVING_FREQ = 15;
+    public static final int DRAWING_FREQ = 60;
+    public static final int MOVING_FREQ = 60;
+
+    public static final int DRAWING_PRIORITY = 0;
+    public static final int MOVING_PRIORITY = 1;
 
     public Game(GraphicsContext context) {
         init(context);
@@ -48,7 +51,11 @@ public class Game {
         drawer.stopDrawingLoop();
         snake.stopMoving();
 
-        food = null;
+        if (snake.body().size() == FIELD_WIDTH * FIELD_HEIGHT - 1) {
+            startNewGame();
+            return;
+        }
+
         generateFood();
 
         snake.startMoving();
@@ -57,17 +64,20 @@ public class Game {
 
     private void init(GraphicsContext context) {
         snake = new Snake();
+        food = new Tile(-1, -1);
         generateFood();
 
         drawer = new Drawer(context);
     }
 
-    private void startNewGame() {
+    private static void startNewGame() {
         drawer.stopDrawingLoop();
-        snake.stopMoving();
+        // snake.stopMoving();
 
-        snake = new Snake();
-        snake.startMoving();
+        synchronized (snake) {
+            snake.getNewSnake();
+            // snake.startMoving();
+        }
         drawer.startDrawingLoop();
     }
 
@@ -101,7 +111,10 @@ public class Game {
             }
         }
 
-        food = new Tile(maxI, maxJ);
+        synchronized (food) {
+            food.setX(maxI);
+            food.setY(maxJ);
+        }
     }
 
     public static int correctWidth(int width) {

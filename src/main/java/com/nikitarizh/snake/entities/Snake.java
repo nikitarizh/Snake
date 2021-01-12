@@ -1,8 +1,9 @@
 package com.nikitarizh.snake.entities;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import com.nikitarizh.snake.Game;
 
@@ -10,23 +11,21 @@ public class Snake {
 
     private final int DEFAULT_BODY_SIZE = 4;
 
-    private Tile head;
-    private ArrayList<Tile> body;
+    private volatile Tile head;
+    private volatile ArrayList<Tile> body;
     
-    private int xSpeed;
-    private int ySpeed;
+    private volatile int xSpeed;
+    private volatile int ySpeed;
 
-    private Timer movingLoop;
+    private ScheduledExecutorService movingLoop;
 
     private boolean isDead = false;
 
     public Snake() {
+        head = new Tile(-1, -1);
+        body = new ArrayList<Tile>();
 
-        generateHead();
-        generateBody();
-
-        xSpeed = 0;
-        ySpeed = 0;
+        getNewSnake();
     }
 
     public Tile head() {
@@ -41,22 +40,58 @@ public class Snake {
         return this.isDead;
     }
 
+    public void getNewSnake() {
+        setDefaultHead();
+        setDefaultBody();
+
+        xSpeed = 0;
+        ySpeed = 0;
+
+        resurrect();
+    }
+
     public void startMoving() {
-        movingLoop = new Timer();
-        movingLoop.schedule(new TimerTask(){
+        Thread movingThread = new Thread(new Runnable(){
             @Override
             public void run() {
-                move();
+                try {
+                    move();
+                }
+                catch (Exception e) {
+                    System.out.println("Exception in moving: " + e.getMessage());
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+                
+            }
+        });
+        movingThread.setPriority(Thread.MIN_PRIORITY + Game.MOVING_PRIORITY);
 
-                // lol
+        movingLoop = Executors.newSingleThreadScheduledExecutor();
+        movingLoop.scheduleAtFixedRate(() -> {
+            try {
+                movingThread.run();
+            }
+            catch (Exception e) {
+                System.out.println("Exception in moving thread: " + e.getMessage());
+                e.printStackTrace();
+                System.exit(1);
+            }
+            // lol
+            try {
                 maybeDie();
                 maybeEat();
             }
-        }, 0, 1000 / Game.MOVING_FREQ);
+            catch (Exception e) {
+                System.out.println("Exception in maybe dying or eating: " + e.getMessage());
+                e.printStackTrace();
+                System.exit(1);
+            }
+        }, 0, 1000 / Game.MOVING_FREQ, TimeUnit.MILLISECONDS);
     }
 
     public void stopMoving() {
-        movingLoop.cancel();
+        movingLoop.shutdown();
     }
 
     public void setTopDirection() {
@@ -79,15 +114,20 @@ public class Snake {
         ySpeed = 0;
     }
 
-    private void generateHead() {
-        head = new Tile(10, 10);
+    private void setDefaultHead() {
+        synchronized (head) {
+            head.setX(10);
+            head.setY(10);
+        }
     }
 
-    private void generateBody() {
-        body = new ArrayList<Tile>();
+    private void setDefaultBody() {
+        synchronized (body) {
+            body.clear();
 
-        for (int i = 1; i <= DEFAULT_BODY_SIZE; i++) {
-            body.add(new Tile(10, 10 + i));
+            for (int i = 1; i <= DEFAULT_BODY_SIZE; i++) {
+                body.add(new Tile(10, 10 + i));
+            }
         }
     }
 
@@ -99,48 +139,61 @@ public class Snake {
         int lastPosX = head.getX();
         int lastPosY = head.getY();
 
-        head.setX(Game.correctWidth(head.getX() + xSpeed));
-        head.setY(Game.correctHeight(head.getY() + ySpeed));
-
-        for (Tile tile : body) {
-            int buffX = tile.getX();
-            int buffY = tile.getY();
-
-            tile.setX(Game.correctWidth(lastPosX));
-            tile.setY(Game.correctHeight(lastPosY));
-
-            lastPosX = buffX;
-            lastPosY = buffY;
+        synchronized (head) {
+            head.setX(Game.correctWidth(head.getX() + xSpeed));
+            head.setY(Game.correctHeight(head.getY() + ySpeed));
         }
+
+        synchronized (body) {
+            for (Tile tile : body) {
+                int buffX = tile.getX();
+                int buffY = tile.getY();
+    
+                tile.setX(Game.correctWidth(lastPosX));
+                tile.setY(Game.correctHeight(lastPosY));
+    
+                lastPosX = buffX;
+                lastPosY = buffY;
+            }
+        }
+
     }
 
     // maybe no
     private void maybeEat() {
-        if (head.getX() == Game.food.getX() && head.getY() == Game.food.getY()) {
-            grow();
-            Game.foodAte();
+        synchronized (head) {
+            if (head.getX() == Game.food.getX() && head.getY() == Game.food.getY()) {
+                grow();
+                Game.foodAte();
+            }
         }
     }
 
     // maybe no
     private void maybeDie() {
-        for (Tile tile : body) {
-            if (tile.getX() == head.getX() && tile.getY() == head.getY()) {
-                die();
+        synchronized (body) {
+            for (Tile tile : body) {
+                if (tile.getX() == head.getX() && tile.getY() == head.getY()) {
+                    die();
+                    return;
+                }
             }
         }
     }
 
     private void grow() {
-        synchronized(body) {
+        synchronized (body) {
             body.add(new Tile(head.getX(), head.getY()));
         }
     }
 
     private void die() {
         isDead = true;
-        stopMoving();
-        // generateHead();
-        // generateBody();
+        // stopMoving();
+        getNewSnake();
+    }
+
+    private void resurrect() {
+        this.isDead = false;
     }
 }
