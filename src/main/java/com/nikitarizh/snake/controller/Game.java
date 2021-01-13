@@ -18,11 +18,6 @@ public class Game {
 
     // public static final Tile STARTING_POINT = new Tile(FIELD_WIDTH / 2, FIELD_HEIGHT / 2);
     public static final Tile STARTING_POINT = new Tile(0, 0);
-
-    public static volatile Snake snake;
-    public static volatile Tile food;
-    public static volatile LinkedList<Tile> drawingQueue;
-    public static Drawer drawer;
     
     public static final int DRAWING_FREQ = 40;
     public static final int MOVING_FREQ = 30;
@@ -31,6 +26,11 @@ public class Game {
     public static final int DRAWING_PRIORITY = 0;
     public static final int MOVING_PRIORITY = 1;
     public static final int THINKING_PRIORITY = 2;
+
+    private static volatile Snake snake;
+    private static volatile Tile food;
+    private static volatile LinkedList<Tile> cycleFindingSteps;
+    private static Drawer drawer;
 
     public Game(GraphicsContext context) {
         init(context);
@@ -44,6 +44,43 @@ public class Game {
                 brain.startThinking();
             }
         }).start();
+    }
+
+    public static Snake snake() {
+        return Game.snake;
+    }
+
+    public static Tile food() {
+        return Game.food;
+    }
+
+    public static LinkedList<Tile> cycleFindingSteps() {
+        return Game.cycleFindingSteps;
+    }
+
+    public static boolean addCycleFindingStep(Tile t) {
+        if (Game.cycleFindingSteps == null) {
+            return false;
+        }
+
+        synchronized (Game.cycleFindingSteps) {
+            Game.cycleFindingSteps.add(t);
+        }
+
+        return true;
+
+    }
+
+    public static boolean removeCycleFindingStep(Tile t) {
+        if (Game.cycleFindingSteps == null) {
+            return false;
+        }
+
+        synchronized (Game.cycleFindingSteps) {
+            Game.cycleFindingSteps.remove(t);
+        }
+        
+        return true;
     }
 
     public void changeSnakeDirection(String keyCode) {
@@ -87,7 +124,7 @@ public class Game {
         food = new Tile(-1, -1);
         generateFood();
 
-        drawingQueue = new LinkedList<Tile>();
+        cycleFindingSteps = new LinkedList<Tile>();
 
         drawer = new Drawer(context);
     }

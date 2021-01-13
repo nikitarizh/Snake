@@ -162,7 +162,7 @@ public class Snake {
     // maybe no
     private void maybeEat() {
         synchronized (head) {
-            if (head.getX() == Game.food.getX() && head.getY() == Game.food.getY()) {
+            if (head.getX() == Game.food().getX() && head.getY() == Game.food().getY()) {
                 grow();
                 Game.foodAte();
             }

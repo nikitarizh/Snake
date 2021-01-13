@@ -56,7 +56,7 @@ public class Drawer {
                     System.exit(1);
                 }
 
-                drawDrawingQueue();
+                drawCycleFindingSteps();
             }
         });
         drawingThread.setPriority(Thread.MIN_PRIORITY + Game.DRAWING_PRIORITY);
@@ -83,20 +83,20 @@ public class Drawer {
     }
 
     private void drawSnake() {
-        synchronized (Game.snake.head()) {
-            fillRoundRect(Game.snake.head().getX(), Game.snake.head().getY(), TILE_SIZE, TILE_SIZE, SNAKE_HEAD_COLOR);
+        synchronized (Game.snake().head()) {
+            fillRoundRect(Game.snake().head().getX(), Game.snake().head().getY(), TILE_SIZE, TILE_SIZE, SNAKE_HEAD_COLOR);
         }
 
-        if (Game.snake.isDead()) {
-            synchronized (Game.snake.body()) {
-                for (Tile tile : Game.snake.body()) {
+        if (Game.snake().isDead()) {
+            synchronized (Game.snake().body()) {
+                for (Tile tile : Game.snake().body()) {
                     fillRoundRect(tile.getX(), tile.getY(), TILE_SIZE, TILE_SIZE, SNAKE_DYING_BODY_COLOR);
                 }
             }
         }
         else {
-            synchronized (Game.snake.body()) {
-                for (Tile tile : Game.snake.body()) {
+            synchronized (Game.snake().body()) {
+                for (Tile tile : Game.snake().body()) {
                     fillRoundRect(tile.getX(), tile.getY(), TILE_SIZE, TILE_SIZE, SNAKE_BODY_COLOR);
                 }
             }
@@ -104,14 +104,14 @@ public class Drawer {
     }
 
     private void drawFood() {
-        synchronized (Game.food) {
-            fillRoundRect(Game.food.getX(), Game.food.getY(), TILE_SIZE, TILE_SIZE, FOOD_COLOR);
+        synchronized (Game.food()) {
+            fillRoundRect(Game.food().getX(), Game.food().getY(), TILE_SIZE, TILE_SIZE, FOOD_COLOR);
         }
     }
 
-    private void drawDrawingQueue() {
-        synchronized (Game.drawingQueue) {
-            for (Tile tile : Game.drawingQueue) {
+    private void drawCycleFindingSteps() {
+        synchronized (Game.cycleFindingSteps()) {
+            for (Tile tile : Game.cycleFindingSteps()) {
                 fillRoundRect(tile.getX(), tile.getY(), TILE_SIZE, TILE_SIZE, Color.PURPLE);
             }
         }

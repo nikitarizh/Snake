@@ -20,7 +20,7 @@ public class SnakeAI {
     private LinkedList<Tile> cycle;
     private int currTile = 0;
 
-    private int drawingTimeOut = 1;
+    private int drawingTimeOut = 50;
 
     
     public SnakeAI() {
@@ -46,7 +46,7 @@ public class SnakeAI {
 
         prepareForFinding();
 
-        int headPos = getTileID(Game.snake.head());
+        int headPos = getTileID(Game.snake().head());
 
         long t1 = System.nanoTime();
 
@@ -115,27 +115,27 @@ public class SnakeAI {
     private void think() {
         Tile target = cycle.get(currTile % cycle.size());
 
-        int xOffset = Game.snake.head().getX() - target.getX();
+        int xOffset = Game.snake().head().getX() - target.getX();
         if (xOffset > 0) {
-            Game.snake.setLeftDirection();
+            Game.snake().setLeftDirection();
             return;
         }
         else if (xOffset < 0) {
-            Game.snake.setRightDirection();
+            Game.snake().setRightDirection();
             return;
         }
 
-        int yOffset = Game.snake.head().getY() - target.getY();
+        int yOffset = Game.snake().head().getY() - target.getY();
         if (yOffset > 0) {
-            Game.snake.setTopDirection();
+            Game.snake().setTopDirection();
             return;
         }
         else if (yOffset < 0) {
-            Game.snake.setBottomDirection();
+            Game.snake().setBottomDirection();
             return;
         }
 
-        if (Game.snake.head().getX() == target.getX() && Game.snake.head().getY() == target.getY()) {
+        if (Game.snake().head().getX() == target.getX() && Game.snake().head().getY() == target.getY()) {
             currTile++;
         }
     }
@@ -163,12 +163,20 @@ public class SnakeAI {
             boolean last = true;
             for (boolean b : used) {
                 if (!b) {
+                    if (drawingTimeOut > 0) {
+                        removeFromDrawingQueue(curr);
+                    }
+
                     used.set(curr, false);
                     last = false;
                     return -1;
                 }
             }
             if (last) {
+                if (drawingTimeOut > 0) {
+                    removeFromDrawingQueue(curr);
+                }
+
                 return 1;
             }
         }
@@ -244,12 +252,8 @@ public class SnakeAI {
             Thread.sleep(drawingTimeOut);
         }
         catch (InterruptedException e) {}
-        synchronized (Game.drawingQueue) {
-            Tile curr = tiles.get(id);
-            if (!Game.drawingQueue.contains(curr)) {
-                Game.drawingQueue.add(curr);
-            }
-        }
+
+        Game.addCycleFindingStep(tiles.get(id));
     }
 
     private void removeFromDrawingQueue(int id) {
@@ -257,8 +261,7 @@ public class SnakeAI {
             Thread.sleep(drawingTimeOut);
         }
         catch (InterruptedException e) {}
-        synchronized (Game.drawingQueue) {
-            Game.drawingQueue.remove(tiles.get(id));
-        }
+        
+        Game.removeCycleFindingStep(tiles.get(id));
     }
 }
