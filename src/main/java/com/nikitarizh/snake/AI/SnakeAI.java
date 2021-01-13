@@ -204,39 +204,34 @@ public class SnakeAI {
         ArrayList<Boolean> usedForCountPoints = new ArrayList<Boolean>(used.size());
 
         int usedAmount = 0;
-        for (boolean b : used) {
+        int startFrom = -1;
+        boolean b;
+        for (int i = 0; i < used.size(); i++) {
+            b = used.get(i);
             usedForCountPoints.add(b);
             if (b) {
                 usedAmount++;
             }
-        }
-
-        return countPoints(0, -1, usedForCountPoints) >= tiles.size() - usedAmount - 1;
-    }
-
-    private int countPoints(int curr, int from, ArrayList<Boolean> used) {
-        if (from != -1) {
-            used.set(from, true);
-        }
-        else {
-            for (int i = 0; i < tiles.size(); i++) {
-                if (!used.get(i)) {
-                    return countPoints(i, i, used);
-                }
+            else {
+                startFrom = i;
             }
         }
+
+        return countPoints(startFrom, usedForCountPoints) >= tiles.size() - usedAmount - 1;
+    }
+
+    private int countPoints(int curr, ArrayList<Boolean> used) {
+        used.set(curr, true);
 
         int result = 0;
 
         for (int i = 0; i < tilesMatrix.get(curr).size(); i++) {
             int tileID = getTileID(tilesMatrix.get(curr).get(i));
             if (!used.get(tileID)) {
-                result += countPoints(tileID, curr, used) + 1;
+                result += countPoints(tileID, used) + 1;
             }
         }
 
-        used.set(curr, true);
-        
         return result;
     }
 
