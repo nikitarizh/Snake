@@ -78,6 +78,8 @@ public class Drawer {
         drawingLoop.shutdown();
     }
 
+
+
     private void drawBackground() {
         fillRect(0, 0, Game.FIELD_WIDTH, Game.FIELD_HEIGHT, BACKGROUND_COLOR);
     }
@@ -117,6 +119,8 @@ public class Drawer {
         }
     }
 
+
+    
     private void fillRect(double x, double y, double w, double h, Color color) {
         Platform.runLater(new Runnable() {
             @Override

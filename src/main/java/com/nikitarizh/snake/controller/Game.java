@@ -83,6 +83,8 @@ public class Game {
         return true;
     }
 
+
+
     public void changeSnakeDirection(String keyCode) {
         if (snake.isDead()) {
             startNewGame();
@@ -118,7 +120,41 @@ public class Game {
         // snake.startMoving();
         drawer.startDrawingLoop();
     }
+    
 
+
+    public static int correctWidth(int width) {
+        if (width >= 0 && width < Game.FIELD_WIDTH) {
+            return width;
+        }
+
+        if (width < 0) {
+            width += Game.FIELD_WIDTH;
+        }
+        else {
+            width -= Game.FIELD_WIDTH + 1;
+        }
+
+        return width;
+    }
+
+    public static int correctHeight(int height) {
+        if (height >= 0 && height < Game.FIELD_HEIGHT) {
+            return height;
+        }
+
+        if (height < 0) {
+            height += Game.FIELD_HEIGHT;
+        }
+        else {
+            height -= Game.FIELD_HEIGHT + 1;
+        }
+
+        return height;
+    }
+
+
+    
     private void init(GraphicsContext context) {
         snake = new Snake();
         food = new Tile(-1, -1);
@@ -127,11 +163,6 @@ public class Game {
         cycleFindingSteps = new LinkedList<Tile>();
 
         drawer = new Drawer(context);
-    }
-
-    private static void win() {
-        snake.stopMoving();
-        drawer.stopDrawingLoop();
     }
 
     private static void startNewGame() {
@@ -144,7 +175,7 @@ public class Game {
         snake.startMoving();
         drawer.startDrawingLoop();
     }
-
+    
     private static void generateFood() {
         int maxI = 0, maxJ = 0;
         double maxChance = -1;
@@ -181,33 +212,8 @@ public class Game {
         }
     }
 
-    public static int correctWidth(int width) {
-        if (width >= 0 && width < Game.FIELD_WIDTH) {
-            return width;
-        }
-
-        if (width < 0) {
-            width += Game.FIELD_WIDTH;
-        }
-        else {
-            width -= Game.FIELD_WIDTH + 1;
-        }
-
-        return width;
-    }
-
-    public static int correctHeight(int height) {
-        if (height >= 0 && height < Game.FIELD_HEIGHT) {
-            return height;
-        }
-
-        if (height < 0) {
-            height += Game.FIELD_HEIGHT;
-        }
-        else {
-            height -= Game.FIELD_HEIGHT + 1;
-        }
-
-        return height;
+    private static void win() {
+        snake.stopMoving();
+        drawer.stopDrawingLoop();
     }
 }

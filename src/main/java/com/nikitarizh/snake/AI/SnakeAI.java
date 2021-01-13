@@ -87,6 +87,8 @@ public class SnakeAI {
         thinkingLoop.shutdown();
     }
 
+
+
     private void prepareForFinding() {
         for (int i = 0; i < Game.FIELD_HEIGHT; i++) {
             for (int j = 0; j < Game.FIELD_WIDTH; j++) {
@@ -208,6 +210,8 @@ public class SnakeAI {
         return -1;
     }
 
+
+
     private boolean pathExits(int from, int to) {
         ArrayList<Boolean> usedForCountPoints = new ArrayList<Boolean>(used.size());
 
@@ -247,6 +251,8 @@ public class SnakeAI {
         return tile.getY() * Game.FIELD_WIDTH + tile.getX();
     }
 
+
+    
     private void pushToDrawingQueue(int id) {
         try {
             Thread.sleep(drawingTimeOut);

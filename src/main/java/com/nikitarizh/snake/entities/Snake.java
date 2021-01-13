@@ -40,6 +40,8 @@ public class Snake {
         return this.isDead;
     }
 
+    
+    
     public void getNewSnake() {
         setDefaultHead();
         setDefaultBody();
@@ -49,7 +51,7 @@ public class Snake {
 
         resurrect();
     }
-
+    
     public void startMoving() {
         Thread movingThread = new Thread(new Runnable(){
             @Override
@@ -114,6 +116,8 @@ public class Snake {
         ySpeed = 0;
     }
 
+
+
     private void setDefaultHead() {
         synchronized (head) {
             head.setX(Game.STARTING_POINT.getX());
@@ -130,6 +134,8 @@ public class Snake {
             }
         }
     }
+
+
 
     private void move() {
         if (xSpeed == 0 && ySpeed == 0) {
@@ -169,6 +175,12 @@ public class Snake {
         }
     }
 
+    private void grow() {
+        synchronized (body) {
+            body.add(new Tile(head.getX(), head.getY()));
+        }
+    }
+
     // maybe no
     private void maybeDie() {
         synchronized (body) {
@@ -178,12 +190,6 @@ public class Snake {
                     return;
                 }
             }
-        }
-    }
-
-    private void grow() {
-        synchronized (body) {
-            body.add(new Tile(head.getX(), head.getY()));
         }
     }
 
