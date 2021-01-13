@@ -1,5 +1,7 @@
 package com.nikitarizh.snake;
 
+import java.util.LinkedList;
+
 import com.nikitarizh.snake.entities.Snake;
 import com.nikitarizh.snake.entities.Tile;
 
@@ -7,25 +9,39 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class Game {
 
-    public static final int FIELD_WIDTH = 30;
-    public static final int FIELD_HEIGHT = 30;
+    public static final int FIELD_WIDTH = 10;
+    public static final int FIELD_HEIGHT = 10;
     public static double WIDTH_MULT = 0;
     public static double HEIGHT_MULT = 0;
 
+    public static final Tile STARTING_POINT = new Tile(FIELD_WIDTH / 2, FIELD_HEIGHT / 2);
+    // public static final Tile STARTING_POINT = new Tile(0, 0);
+
     public static volatile Snake snake;
     public static volatile Tile food;
+    public static volatile LinkedList<Tile> drawingQueue;
     public static Drawer drawer;
     
-    public static final int DRAWING_FREQ = 15;
-    public static final int MOVING_FREQ = 15;
+    public static final int DRAWING_FREQ = 40;
+    public static final int MOVING_FREQ = 30;
+    public static final int THINKING_FREQ = 200;
 
     public static final int DRAWING_PRIORITY = 0;
     public static final int MOVING_PRIORITY = 1;
+    public static final int THINKING_PRIORITY = 2;
 
     public Game(GraphicsContext context) {
         init(context);
 
         snake.startMoving();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                SnakeAI brain = new SnakeAI();
+                brain.startThinking();
+            }
+        }).start();
     }
 
     public void changeSnakeDirection(String keyCode) {
@@ -49,16 +65,18 @@ public class Game {
 
     public static void foodAte() {
         drawer.stopDrawingLoop();
-        snake.stopMoving();
+        // snake.stopMoving();
 
         if (snake.body().size() == FIELD_WIDTH * FIELD_HEIGHT - 1) {
-            startNewGame();
+            snake.head().setX(food.getX());
+            snake.head().setY(food.getY());
+            win();
             return;
         }
 
         generateFood();
 
-        snake.startMoving();
+        // snake.startMoving();
         drawer.startDrawingLoop();
     }
 
@@ -67,7 +85,14 @@ public class Game {
         food = new Tile(-1, -1);
         generateFood();
 
+        drawingQueue = new LinkedList<Tile>();
+
         drawer = new Drawer(context);
+    }
+
+    private static void win() {
+        snake.stopMoving();
+        drawer.stopDrawingLoop();
     }
 
     private static void startNewGame() {

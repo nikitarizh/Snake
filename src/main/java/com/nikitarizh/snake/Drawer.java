@@ -54,6 +54,8 @@ public class Drawer {
                     e.printStackTrace();
                     System.exit(1);
                 }
+
+                drawDrawingQueue();
             }
         });
         drawingThread.setPriority(Thread.MIN_PRIORITY + Game.DRAWING_PRIORITY);
@@ -103,6 +105,14 @@ public class Drawer {
     private void drawFood() {
         synchronized (Game.food) {
             fillRoundRect(Game.food.getX(), Game.food.getY(), TILE_SIZE, TILE_SIZE, FOOD_COLOR);
+        }
+    }
+
+    private void drawDrawingQueue() {
+        synchronized (Game.drawingQueue) {
+            for (Tile tile : Game.drawingQueue) {
+                fillRoundRect(tile.getX(), tile.getY(), TILE_SIZE, TILE_SIZE, Color.PURPLE);
+            }
         }
     }
 

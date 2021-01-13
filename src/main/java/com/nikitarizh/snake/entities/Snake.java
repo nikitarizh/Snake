@@ -116,8 +116,8 @@ public class Snake {
 
     private void setDefaultHead() {
         synchronized (head) {
-            head.setX(10);
-            head.setY(10);
+            head.setX(Game.STARTING_POINT.getX());
+            head.setY(Game.STARTING_POINT.getY());
         }
     }
 
@@ -126,7 +126,7 @@ public class Snake {
             body.clear();
 
             for (int i = 1; i <= DEFAULT_BODY_SIZE; i++) {
-                body.add(new Tile(10, 10 + i));
+                body.add(new Tile(head.getX(), head.getY() + i));
             }
         }
     }
@@ -190,6 +190,7 @@ public class Snake {
     private void die() {
         isDead = true;
         stopMoving();
+        // getNewSnake();
     }
 
     private void resurrect() {
