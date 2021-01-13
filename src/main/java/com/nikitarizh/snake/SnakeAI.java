@@ -11,14 +11,27 @@ import com.nikitarizh.snake.entities.Tile;
 public class SnakeAI {
 
     private ScheduledExecutorService thinkingLoop;
+
     private ArrayList<Tile> tiles;
-    private LinkedList<Tile> cycle;
+    private ArrayList<ArrayList<Tile>> tilesMatrix;
     private ArrayList<Boolean> used;
+
+    private LinkedList<Tile> cycle;
     private int currTile = 0;
+
+    private int drawingTimeOut = 1;
+
     
     public SnakeAI() {
-        tiles = new ArrayList<Tile>();
+        tiles = new ArrayList<Tile>(Game.FIELD_WIDTH * Game.FIELD_HEIGHT);
+
+        tilesMatrix = new ArrayList<ArrayList<Tile>>(Game.FIELD_WIDTH * Game.FIELD_HEIGHT);
+        for (int i = 0; i < Game.FIELD_WIDTH * Game.FIELD_HEIGHT; i++) {
+            tilesMatrix.add(new ArrayList<Tile>());
+        }
+
         cycle = new LinkedList<Tile>();
+
         used = new ArrayList<Boolean>(Game.FIELD_WIDTH * Game.FIELD_HEIGHT);
     }
 
@@ -31,9 +44,9 @@ public class SnakeAI {
         }
 
         prepareForFinding();
-        int headPos = Game.snake.head().getY() * Game.FIELD_WIDTH + Game.snake.head().getX();
-        findHamiltonianCycle(headPos, headPos, 0);
-        System.out.println("CYCLE SIZE: " + cycle.size());
+
+        int headPos = getTileID(Game.snake.head());
+        findHamiltonianCycle(headPos, headPos, true);
 
         Thread brain = new Thread(new Runnable() {
             @Override
@@ -67,11 +80,32 @@ public class SnakeAI {
         thinkingLoop.shutdown();
     }
 
-    private void think() {
-        // if (Game.food == null || Game.snake == null || Game.snake.head() == null) {
-        //     return;
-        // }
+    private void prepareForFinding() {
+        for (int i = 0; i < Game.FIELD_HEIGHT; i++) {
+            for (int j = 0; j < Game.FIELD_WIDTH; j++) {
+                Tile t = new Tile(j, i);
 
+                if (j - 1 >= 0) {
+                    tilesMatrix.get(getTileID(t)).add(new Tile(j - 1, i));
+                }
+                if (j + 1 < Game.FIELD_WIDTH) {
+                    tilesMatrix.get(getTileID(t)).add(new Tile(j + 1, i));
+                }
+                if (i - 1 >= 0) {
+                    tilesMatrix.get(getTileID(t)).add(new Tile(j, i - 1));
+                }
+                if (i + 1 < Game.FIELD_HEIGHT) {
+                    tilesMatrix.get(getTileID(t)).add(new Tile(j, i + 1));
+                }
+
+                tiles.add(t);
+
+                used.add(false);
+            }
+        }
+    }
+
+    private void think() {
         Tile target = cycle.get(currTile % cycle.size());
 
         int xOffset = Game.snake.head().getX() - target.getX();
@@ -99,126 +133,83 @@ public class SnakeAI {
         }
     }
 
-    private void prepareForFinding() {
-        for (int i = 0; i < Game.FIELD_HEIGHT; i++) {
-            for (int j = 0; j < Game.FIELD_WIDTH; j++) {
-                tiles.add(new Tile(j, i));
-                used.add(false);
-            }
-        }
-    }
-
-    private int findHamiltonianCycle(int curr, int start, int time) {
-        int timeout = 10;
-        try {
-            Thread.sleep(timeout);
-        }
-        catch (InterruptedException e) {}
-        synchronized (Game.drawingQueue) {
-            if (!Game.drawingQueue.contains(tiles.get(curr))) {
-                Game.drawingQueue.add(tiles.get(curr));
-            }
+    private int findHamiltonianCycle(int curr, int start, boolean first) {
+        if (drawingTimeOut > 0) {
+            pushToDrawingQueue(curr);
         }
 
         if (!pathExits(curr, start)) {
-            // System.out.println("from " + curr);
-            try {
-                Thread.sleep(timeout);
-            }
-            catch (InterruptedException e) {}
-            synchronized (Game.drawingQueue) {
-                Game.drawingQueue.remove(tiles.get(curr));
+            if (drawingTimeOut > 0) {
+                removeFromDrawingQueue(curr);
             }
             
-            used.set(tiles.get(curr).getY() * Game.FIELD_WIDTH + tiles.get(curr).getX(), false);
+            used.set(curr, false);
             return -1;
         }
 
         if (curr != start) {
-            used.set(tiles.get(curr).getY() * Game.FIELD_WIDTH + tiles.get(curr).getX(), true);
+            used.set(curr, true);
         }
 
-        if (curr == start && time != 0) {
-            used.set(tiles.get(curr).getY() * Game.FIELD_WIDTH + tiles.get(curr).getX(), true);
-            System.out.println("if");
+        if (curr == start && !first) {
+            used.set(curr, true);
             boolean last = true;
             for (boolean b : used) {
                 if (!b) {
-                    used.set(tiles.get(curr).getY() * Game.FIELD_WIDTH + tiles.get(curr).getX(), false);
-                    System.out.println("false");
+                    used.set(curr, false);
                     last = false;
                     return -1;
                 }
             }
             if (last) {
-                System.out.println("RETURNING 1");
                 return 1;
             }
         }
 
         int j = 0;
 
-        while (j < tiles.size()) {
-            if (checkBond(curr, j) && !used.get(j) && curr != j) {
-                int next = findHamiltonianCycle(j, start, 1);
+        while (j < tilesMatrix.get(curr).size()) {
+            int tileId = getTileID(tilesMatrix.get(curr).get(j));
+            if (!used.get(tileId)) {
+                int next = findHamiltonianCycle(tileId, start, false);
                 if (next != -1) {
                     cycle.addFirst(tiles.get(curr));
-                    try {
-                        Thread.sleep(timeout);
+
+                    if (drawingTimeOut > 0) {
+                        removeFromDrawingQueue(curr);
                     }
-                    catch (InterruptedException e) {}
-                    synchronized (Game.drawingQueue) {
-                        Game.drawingQueue.remove(tiles.get(curr));
-                    }
-                    System.out.println("ret 1");
+
                     return 1;
                 }
             }
             j++;
         }
 
-        try {
-            Thread.sleep(timeout);
-        }
-        catch (InterruptedException e) {}
-        synchronized (Game.drawingQueue) {
-            Game.drawingQueue.remove(tiles.get(curr));
+        if (drawingTimeOut > 0) {
+            removeFromDrawingQueue(curr);
         }
         
-        used.set(tiles.get(curr).getY() * Game.FIELD_WIDTH + tiles.get(curr).getX(), false);
+        used.set(curr, false);
         return -1;
     }
 
-    private boolean checkBond(int ind1, int ind2) {
-        // System.out.println(ind1 + " " + ind2);
-        Tile t1 = tiles.get(ind1);
-        Tile t2 = tiles.get(ind2);
-        return  (t1.getX() == t2.getX() && Math.abs(t1.getY() - t2.getY()) == 1) ||
-                (t1.getY() == t2.getY() && Math.abs(t1.getX() - t2.getX()) == 1) ||
-                (t1.getX() == t2.getX() && t1.getY() == t2.getY());
-    }
-
     private boolean pathExits(int from, int to) {
-        ArrayList<Boolean> used1 = new ArrayList<Boolean>(used.size());
+        ArrayList<Boolean> usedForDFS = new ArrayList<Boolean>(used.size());
+        ArrayList<Boolean> usedForCountPoints = new ArrayList<Boolean>(used.size());
+
         for (boolean b : used) {
-            used1.add(b);
+            usedForDFS.add(b);
         }
-        ArrayList<Boolean> used2 = new ArrayList<Boolean>(used.size());
+
         int usedAmount = 0;
         for (boolean b : used) {
-            used2.add(b);
+            usedForCountPoints.add(b);
             if (b) {
                 usedAmount++;
             }
         }
 
-        // System.out.println(dfs(from, to, used1));
-        // System.out.println(countPoints(from, used2) == tiles.size() - usedAmount);
-        // System.out.println(dfs(from, to, used1) && (countPoints(from, used2) == (tiles.size() - usedAmount)));
-        int points = countPoints(-1, used2);
-        // System.out.println("Points: " + points);
-        // System.out.println("Required: " + (tiles.size() - usedAmount - 1));
-        return dfs(from, to, used1) && (points >= (tiles.size() - usedAmount - 1));
+        return dfs(from, to, usedForDFS) && (countPoints(0, -1, usedForCountPoints) >= tiles.size() - usedAmount - 1);
     }
 
     private boolean dfs(int from, int to, ArrayList<Boolean> used) {
@@ -228,9 +219,10 @@ public class SnakeAI {
 
         used.set(from, true);
 
-        for (int i = 0; i < tiles.size(); i++) {
-            if (!used.get(i) && checkBond(from, i)) {
-                if (dfs(i, to, used)) {
+        for (int i = 0; i < tilesMatrix.get(from).size(); i++) {
+            int tileId = getTileID(tilesMatrix.get(from).get(i));
+            if (!used.get(tileId)) {
+                if (dfs(tileId, to, used)) {
                     return true;
                 }
             }
@@ -239,26 +231,56 @@ public class SnakeAI {
         return false;
     }
 
-    private int countPoints(int curr, ArrayList<Boolean> used) {
-        if (curr != -1) {
-            used.set(curr, true);
+    private int countPoints(int curr, int from, ArrayList<Boolean> used) {
+        if (from != -1) {
+            used.set(from, true);
         }
         else {
             for (int i = 0; i < tiles.size(); i++) {
                 if (!used.get(i)) {
-                    return countPoints(i, used);
+                    return countPoints(i, i, used);
                 }
             }
         }
 
         int result = 0;
 
-        for (int i = 0; i < tiles.size(); i++) {
-            if (!used.get(i) && checkBond(curr, i)) {
-                result += countPoints(i, used) + 1;
+        for (int i = 0; i < tilesMatrix.get(curr).size(); i++) {
+            int tileID = getTileID(tilesMatrix.get(curr).get(i));
+            if (!used.get(tileID)) {
+                result += countPoints(tileID, curr, used) + 1;
             }
         }
 
+        used.set(curr, true);
+        
         return result;
+    }
+
+    private int getTileID(Tile tile) {
+        return tile.getY() * Game.FIELD_WIDTH + tile.getX();
+    }
+
+    private void pushToDrawingQueue(int id) {
+        try {
+            Thread.sleep(drawingTimeOut);
+        }
+        catch (InterruptedException e) {}
+        synchronized (Game.drawingQueue) {
+            Tile curr = tiles.get(id);
+            if (!Game.drawingQueue.contains(curr)) {
+                Game.drawingQueue.add(curr);
+            }
+        }
+    }
+
+    private void removeFromDrawingQueue(int id) {
+        try {
+            Thread.sleep(drawingTimeOut);
+        }
+        catch (InterruptedException e) {}
+        synchronized (Game.drawingQueue) {
+            Game.drawingQueue.remove(tiles.get(id));
+        }
     }
 }
