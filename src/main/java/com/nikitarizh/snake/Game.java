@@ -9,8 +9,8 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class Game {
 
-    public static final int FIELD_WIDTH = 30;
-    public static final int FIELD_HEIGHT = 30;
+    public static final int FIELD_WIDTH = 20;
+    public static final int FIELD_HEIGHT = 20;
     public static double WIDTH_MULT = 0;
     public static double HEIGHT_MULT = 0;
 
