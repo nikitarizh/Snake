@@ -1,4 +1,4 @@
-package com.nikitarizh.snake;
+package com.nikitarizh.snake.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;

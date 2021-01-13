@@ -1,4 +1,4 @@
-package com.nikitarizh.snake;
+package com.nikitarizh.snake.view;
 
 import javafx.application.Application;
 import javafx.application.Platform;

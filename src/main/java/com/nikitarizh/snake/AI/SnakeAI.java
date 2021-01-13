@@ -1,4 +1,4 @@
-package com.nikitarizh.snake;
+package com.nikitarizh.snake.AI;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -6,6 +6,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import com.nikitarizh.snake.controller.Game;
 import com.nikitarizh.snake.entities.Tile;
 
 public class SnakeAI {

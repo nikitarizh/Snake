@@ -1,9 +1,10 @@
-package com.nikitarizh.snake;
+package com.nikitarizh.snake.view;
 
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.Executors;
 
+import com.nikitarizh.snake.controller.Game;
 import com.nikitarizh.snake.entities.Tile;
 
 import javafx.application.Platform;

@@ -1,9 +1,11 @@
-package com.nikitarizh.snake;
+package com.nikitarizh.snake.controller;
 
-import java.util.LinkedList;
-
+import com.nikitarizh.snake.view.Drawer;
+import com.nikitarizh.snake.AI.SnakeAI;
 import com.nikitarizh.snake.entities.Snake;
 import com.nikitarizh.snake.entities.Tile;
+
+import java.util.LinkedList;
 
 import javafx.scene.canvas.GraphicsContext;
 

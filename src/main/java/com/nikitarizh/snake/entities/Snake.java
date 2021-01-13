@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import com.nikitarizh.snake.Game;
+import com.nikitarizh.snake.controller.Game;
 
 public class Snake {
 
