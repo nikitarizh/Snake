@@ -20,7 +20,7 @@ public class SnakeAI {
     private LinkedList<Tile> cycle;
     private int currTile = 0;
 
-    private int drawingTimeOut = 0;
+    private int drawingTimeOut = 1;
 
     
     public SnakeAI() {
