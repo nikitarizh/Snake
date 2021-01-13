@@ -201,12 +201,7 @@ public class SnakeAI {
     }
 
     private boolean pathExits(int from, int to) {
-        ArrayList<Boolean> usedForDFS = new ArrayList<Boolean>(used.size());
         ArrayList<Boolean> usedForCountPoints = new ArrayList<Boolean>(used.size());
-
-        for (boolean b : used) {
-            usedForDFS.add(b);
-        }
 
         int usedAmount = 0;
         for (boolean b : used) {
