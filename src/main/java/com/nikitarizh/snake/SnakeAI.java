@@ -1,6 +1,7 @@
 package com.nikitarizh.snake;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -19,7 +20,7 @@ public class SnakeAI {
     private LinkedList<Tile> cycle;
     private int currTile = 0;
 
-    private int drawingTimeOut = 1;
+    private int drawingTimeOut = 0;
 
     
     public SnakeAI() {
@@ -209,26 +210,7 @@ public class SnakeAI {
             }
         }
 
-        return dfs(from, to, usedForDFS) && (countPoints(0, -1, usedForCountPoints) >= tiles.size() - usedAmount - 1);
-    }
-
-    private boolean dfs(int from, int to, ArrayList<Boolean> used) {
-        if (from == to) {
-            return true;
-        }
-
-        used.set(from, true);
-
-        for (int i = 0; i < tilesMatrix.get(from).size(); i++) {
-            int tileId = getTileID(tilesMatrix.get(from).get(i));
-            if (!used.get(tileId)) {
-                if (dfs(tileId, to, used)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return countPoints(0, -1, usedForCountPoints) >= tiles.size() - usedAmount - 1;
     }
 
     private int countPoints(int curr, int from, ArrayList<Boolean> used) {

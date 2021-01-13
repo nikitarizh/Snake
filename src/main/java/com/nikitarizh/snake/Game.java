@@ -14,8 +14,8 @@ public class Game {
     public static double WIDTH_MULT = 0;
     public static double HEIGHT_MULT = 0;
 
-    public static final Tile STARTING_POINT = new Tile(FIELD_WIDTH / 2, FIELD_HEIGHT / 2);
-    // public static final Tile STARTING_POINT = new Tile(0, 0);
+    // public static final Tile STARTING_POINT = new Tile(FIELD_WIDTH / 2, FIELD_HEIGHT / 2);
+    public static final Tile STARTING_POINT = new Tile(0, 0);
 
     public static volatile Snake snake;
     public static volatile Tile food;
