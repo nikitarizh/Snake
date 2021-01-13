@@ -1,7 +1,6 @@
 package com.nikitarizh.snake;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -47,7 +46,13 @@ public class SnakeAI {
         prepareForFinding();
 
         int headPos = getTileID(Game.snake.head());
+
+        long t1 = System.nanoTime();
+
         findHamiltonianCycle(headPos, headPos, true);
+
+        long t2 = System.nanoTime();
+        System.out.println("Finding cycle took " + ((t2 - t1) / 1000000) + "ms");
 
         Thread brain = new Thread(new Runnable() {
             @Override
